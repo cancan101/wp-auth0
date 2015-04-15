@@ -41,6 +41,8 @@ class WP_Auth0 {
         // Add a hook to add Auth0 code on the login page
         add_filter( 'login_message', array(__CLASS__, 'render_form') );
 
+        add_filter( 'woocommerce_before_customer_login_form', array(__CLASS__, 'echo_form') );
+
         // Add hook to redirect directly on login auto
         add_action('login_init', array(__CLASS__, 'login_auto'));
         // Add hook to handle when a user is deleted
@@ -250,6 +252,20 @@ class WP_Auth0 {
 
         $html = ob_get_clean();
         return $html;
+    }
+
+    public static function echo_form( $html ){
+        $client_id = WP_Auth0_Options::get('client_id');
+
+        if (trim($client_id) == "") return;
+
+        ob_start();
+        require_once WPA0_PLUGIN_DIR . 'templates/login-form.php';
+        renderAuth0Form();
+
+        $html = ob_get_clean();
+        echo $html;
+        return;
     }
 
     public static function init_auth0(){
